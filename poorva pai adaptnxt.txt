@@ -1,0 +1,110 @@
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class AdaptNxt {
+
+    private static final String COMMA = ",";
+    private static final String DEFAULT_SEPARATOR = COMMA;
+    private static final String DOUBLE_QUOTES = "\"";
+    private static final String EMBEDDED_DOUBLE_QUOTES = "\"\"";
+    private static final String NEW_LINE_UNIX = "\n";
+    private static final String NEW_LINE_WINDOWS = "\r\n";
+
+    public static void main(String[] args) throws IOException {
+
+        CsvWriterSimple writer = new CsvWriterSimple();
+        writer.writeToCsvFile(createCsvDataSpecial(), new File("c:\\test\\monitor.csv"));
+
+    }
+
+    public String convertToCsvFormat(final String[] line) {
+        return convertToCsvFormat(line, DEFAULT_SEPARATOR);
+    }
+
+    public String convertToCsvFormat(final String[] line, final String separator) {
+        return convertToCsvFormat(line, separator, true);
+    }
+
+    public String convertToCsvFormat(
+            final String[] line,
+            final String separator,
+            final boolean quote) {
+
+        return Stream.of(line).map(l -> formatCsvField(l, quote)).collect(Collectors.joining(separator));    
+
+    }
+
+    private String formatCsvField(final String field, final boolean quote) {
+
+        String result = field;
+
+        if (result.contains(COMMA) || result.contains(DOUBLE_QUOTES) || result.contains(NEW_LINE_UNIX) || result.contains(NEW_LINE_WINDOWS)) {
+
+            result = result.replace(DOUBLE_QUOTES, EMBEDDED_DOUBLE_QUOTES);
+
+            result = DOUBLE_QUOTES + result + DOUBLE_QUOTES;
+
+        } 
+	     else {
+             if (quote) {
+             result = DOUBLE_QUOTES + result + DOUBLE_QUOTES;
+            }
+        }
+
+        return result;
+
+    }
+
+    private void writeToCsvFile(List<String[]> list, File file) throws IOException {
+
+        List<String> collect = list.stream().map(this::convertToCsvFormat).collect(Collectors.toList());
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+            for (String line : collect) {
+                bw.write(line);
+                bw.newLine();
+            }
+        }
+
+    }
+
+    private static List<String[]> createCsvDataSpecial() {
+
+        String[] header = {"Product Name", "Product Price", "Product Code", "Model Number", "Product Category", "Product Description"};
+      
+        String[] record1 = {"Quill Brand® 100% Recycled Hanging File Folders", "$25.99", "7452115", "901-745215", "Hangling File Folders", "Standard green 11 point stock"};
+	String[] record2 = {"Pendaflex Glow 5-Tab Hanging File Folders", "$25.99", "61", "901-884240", "Hangling File Folders", "Plastic tabs on each side for standard hanging file construction"};
+	String[] record3 = {"Staples Reinforced Box Bottom Hanging File Folder", "$26.99", "7452115", "901-745215", "Hangling File Folders", "Five assorted-position top tabs allow for ample space for labeling to keep your files organized"};
+	String[] record4 = {"Pendaflex SureHook 5-Tab Hanging File Folders", "$28.99", "316", "901-615215AD", "Hangling File Folders", "Built-in tension springs and longer hooks for durability and security"};
+	String[] record5 = {"Staples Hanging File Folder", "$23.99", "42", "TR521252", "Hangling File Folders", "Legal-size folder for holding oversize documents without folding"};
+	String[] record6 = {"Staples Reinforced Box Bottom Hanging File Folders", "$29.99", "59", "901-884239", "Hangling File Folders", "Five top tabs to keep your files organized"};
+	String[] record7 = {"Quill Brand® 100% Recycled Premium Reinforced 5-Tab Hanging File Folders", "$14.99", "37", "76215P", "Hangling File Folders", "10 times stronger than folders without laminated reinforcements"};
+	String[] record8 = {"Pendaflex® SureHook® 5-Tab Hanging File Folders", "$23.59", "244", "901-615215", "Hangling File Folders", "Long plastic hooks with built-in tension springs to grip rails"};
+	String[] record9 = {"Pendaflex SureHook Expanding File", "$22.59", "13", "PFX 59225", "Hangling File Folders", "Ideal for storing monthly statements, receipts, and expense reports"};
+	String[] record10 = {"Staples Reinforced Hanging File Folders", "$22.99", "534", "901-813110STP", "Hangling File Folders", "File folder tabs are detachable"};
+
+
+        List<String[]> list = new ArrayList<>();
+        list.add(header);
+        list.add(record1);
+        list.add(record2);
+        list.add(record3);
+        list.add(record4);
+	list.add(record5);
+        list.add(record6);
+        list.add(record7);
+        list.add(record8);
+	list.add(record9);
+        list.add(record10);
+
+        return list;
+
+    }
+}
